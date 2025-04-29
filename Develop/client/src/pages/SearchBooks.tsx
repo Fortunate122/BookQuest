@@ -10,11 +10,11 @@ import {
 } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
 
-import Auth from '../utils/auth';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
-import { SAVE_BOOK } from '../utils/mutations';
-import type { Book } from '../models/Book';
-import type { GoogleAPIBook } from '../models/GoogleAPIBook';
+import Auth from '../utils/auth.js';
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage.js';
+import { SAVE_BOOK } from '../utils/mutations.js';
+import type { Book } from '../models/Book.js';
+import type { GoogleAPIBook } from '../models/GoogleAPIBook.js';
 
 const searchGoogleBooks = (query: string) => {
   return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
@@ -29,8 +29,9 @@ const SearchBooks = () => {
   const [saveBook] = useMutation(SAVE_BOOK);
 
   useEffect(() => {
-    return () => saveBookIds(savedBookIds);
-  });
+    saveBookIds(savedBookIds);
+  }, [savedBookIds]);
+  
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

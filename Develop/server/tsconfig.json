@@ -1,13 +1,27 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    /* Modules */
-    "rootDir": "src" /* Specify the root folder within your source files. */,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "rootDir": "./src",
+    "outDir": "./dist",
 
-    /* Emit */
-    "outDir": "dist" /* Specify an output folder for all emitted files. */
-    // "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": ["src"],
-  "typeRoots": ["./node_modules/@types", "./src/types"]
+  "exclude": ["node_modules", "dist"]
 }

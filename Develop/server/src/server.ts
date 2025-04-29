@@ -1,47 +1,63 @@
+// Path: /server/src/server.ts
+
 import express, { Application } from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import path from 'path';
-import { typeDefs, resolvers } from './schemas';
-import { contextMiddleware } from './utils/auth';
-import db from './config/connection';
+import { typeDefs, resolvers } from './schemas/index.js';
+import { contextMiddleware } from './utils/auth.js';
+import mongoose from 'mongoose';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
 async function startApolloServer() {
+  console.log('🔄 Starting Apollo Server...');
   const server = new ApolloServer({
     typeDefs,
     resolvers,
   });
 
   await server.start();
-
-  app.use('/graphql', expressMiddleware(server, {
-    context: async ({ req }) => contextMiddleware({ req })
-  }));
-  
+  console.log('✅ Apollo Server started');
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
+  app.use(
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req }) => {
+        console.log('⚙️ Injecting context...');
+        return contextMiddleware({ req });
+      },
+    })
+  );
+
+  console.log('✅ Middleware applied');
+
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../../client/build')));
+    const clientPath = path.join(__dirname, '../../client/build');
+    console.log(`📦 Serving static assets from ${clientPath}`);
+    app.use(express.static(clientPath));
 
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(__dirname, '../../client/build/index.html'));
+      res.sendFile(path.join(clientPath, 'index.html'));
     });
   }
 
-  db.once('open', () => {
-    app.listen(PORT, () => {
-      console.log(`API server running on port ${PORT}!`);
-      console.log(`GraphQL at http://localhost:${PORT}/graphql`);
-    });
+  console.log('🌐 Connecting to MongoDB...');
+  await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/googlebooks');
+  console.log('✅ MongoDB connected, launching Express...');
+  app.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });
 }
 
-startApolloServer();
+startApolloServer().catch((err) => {
+  console.error('❌ Error starting Apollo Server:', err);
+});
+
 
 
 

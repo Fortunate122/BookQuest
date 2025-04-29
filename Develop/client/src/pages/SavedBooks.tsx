@@ -1,10 +1,11 @@
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 import { useQuery, useMutation } from '@apollo/client';
 
-import { GET_ME } from '../utils/queries';
-import { REMOVE_BOOK } from '../utils/mutations';
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import { GET_ME } from '../utils/queries.js';
+import { REMOVE_BOOK } from '../utils/mutations.js';
+import Auth from '../utils/auth.js';
+import { removeBookId } from '../utils/localStorage.js';
+import type { Book } from '../models/Book.js';
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
@@ -59,7 +60,7 @@ const SavedBooks = () => {
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData.savedBooks.map((book: any) => (
+          {userData.savedBooks.map((book: Book) => (
             <Col md='4' key={book.bookId}>
               <Card border='dark'>
                 {book.image && (
