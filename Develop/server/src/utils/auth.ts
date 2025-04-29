@@ -37,7 +37,8 @@ export function authMiddleware({ req }: { req: Request & { user?: AuthPayload } 
   return req;
 }
 
-export function contextMiddleware({ req }: { req: Request }) {
+export function contextMiddleware({ req }: { req: any }) {
   const request = authMiddleware({ req });
   return { user: request.user };
 }
+
