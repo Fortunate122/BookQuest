@@ -1,9 +1,9 @@
-// Path: /server/src/server.ts
-
 import express, { Application } from 'express';
+import cors from 'cors';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { contextMiddleware } from './utils/auth.js';
 import mongoose from 'mongoose';
@@ -11,8 +11,12 @@ import mongoose from 'mongoose';
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function startApolloServer() {
   console.log('🔄 Starting Apollo Server...');
+
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -21,28 +25,28 @@ async function startApolloServer() {
   await server.start();
   console.log('✅ Apollo Server started');
 
-  app.use(express.urlencoded({ extended: false }));
-  app.use(express.json());
+  app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  }));
 
   app.use(
     '/graphql',
+    express.json(),
     expressMiddleware(server, {
-      context: async ({ req }) => {
-        console.log('⚙️ Injecting context...');
-        return contextMiddleware({ req });
-      },
+      context: async ({ req }) => contextMiddleware({ req })
     })
   );
-
   console.log('✅ Middleware applied');
 
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
+
   if (process.env.NODE_ENV === 'production') {
-    const clientPath = path.join(__dirname, '../../client/build');
-    console.log(`📦 Serving static assets from ${clientPath}`);
-    app.use(express.static(clientPath));
+    app.use(express.static(path.join(__dirname, '../../client/build')));
 
     app.get('*', (_req, res) => {
-      res.sendFile(path.join(clientPath, 'index.html'));
+      res.sendFile(path.join(__dirname, '../../client/build/index.html'));
     });
   }
 
@@ -52,11 +56,10 @@ async function startApolloServer() {
   app.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });
+  
 }
 
-startApolloServer().catch((err) => {
-  console.error('❌ Error starting Apollo Server:', err);
-});
+startApolloServer();
 
 
 
