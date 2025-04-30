@@ -7,8 +7,11 @@ import SavedBooks from './pages/SavedBooks.js';
 import Navbar from './components/Navbar.js';
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3001/graphql',
+  uri: import.meta.env.PROD
+    ? 'https://bookquest-j2mq.onrender.com/graphql'
+    : 'http://localhost:3001/graphql',
 });
+
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('id_token');
